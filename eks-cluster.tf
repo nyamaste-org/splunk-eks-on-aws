@@ -2,7 +2,7 @@ module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "17.24.0"
   cluster_name    = local.cluster_name
-  cluster_version = "1.20"
+  cluster_version = "1.22"
   subnets         = module.vpc.private_subnets
 
   vpc_id = module.vpc.vpc_id
@@ -11,10 +11,10 @@ module "eks" {
     root_volume_type = "gp2"
   }
 
-  worker_groups = [
+  worker_groups_launch_template = [
     {
       name                          = "worker-group-1"
-      instance_type                 = "t2.small"
+      instance_type                 = ["t2.medium", "t3.medium"]
       additional_userdata           = "echo foo bar"
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
       spot_allocation_strategy      = "lowest-price"
@@ -22,9 +22,12 @@ module "eks" {
       asg_desired_capacity          = 2
       kubelet_extra_args            = "--node-labels=node.kubernetes.io/lifecycle=spot"
     },
+  ]
+
+  worker_groups = [
     {
       name                          = "worker-group-2"
-      instance_type                 = "t2.medium"
+      instance_type                 = "t3.medium"
       additional_userdata           = "echo foo bar"
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_two.id]
       asg_max_size                  = 3
