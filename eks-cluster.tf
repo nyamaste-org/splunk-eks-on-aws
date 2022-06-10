@@ -14,7 +14,7 @@ module "eks" {
   worker_groups_launch_template = [
     {
       name                          = "worker-group-1"
-      instance_type                 = ["t2.medium", "t3.medium"]
+      instance_types                = ["t2.medium", "t3.medium"]
       additional_userdata           = "echo foo bar"
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
       spot_allocation_strategy      = "lowest-price"
