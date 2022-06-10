@@ -17,14 +17,19 @@ module "eks" {
       instance_type                 = "t2.small"
       additional_userdata           = "echo foo bar"
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
+      spot_allocation_strategy      = "lowest-price"
+      asg_max_size                  = 3
       asg_desired_capacity          = 2
+      kubelet_extra_args            = "--node-labels=node.kubernetes.io/lifecycle=spot"
     },
     {
       name                          = "worker-group-2"
       instance_type                 = "t2.medium"
       additional_userdata           = "echo foo bar"
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_two.id]
+      asg_max_size                  = 3
       asg_desired_capacity          = 1
+      kubelet_extra_args            = "--node-labels=node.kubernetes.io/lifecycle=ondemand"
     },
   ]
 }
