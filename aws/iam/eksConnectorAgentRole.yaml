@@ -1,0 +1,41 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Provisions necessary resources needed to register clusters in EKS'
+Parameters: {}
+Resources:
+  EKSConnectorSLR:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: eks-connector.amazonaws.com
+
+  EKSConnectorAgentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: [ 'sts:AssumeRole' ]
+            Principal:
+              Service: 'ssm.amazonaws.com'
+
+  EKSConnectorAgentPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: EKSConnectorAgentPolicy
+      Roles:
+        - {Ref: 'EKSConnectorAgentRole'}
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action: [ 'ssmmessages:CreateControlChannel' ]
+            Resource:
+            - Fn::Sub: 'arn:${AWS::Partition}:eks:*:*:cluster/*'
+          - Effect: 'Allow'
+            Action: [ 'ssmmessages:CreateDataChannel', 'ssmmessages:OpenDataChannel', 'ssmmessages:OpenControlChannel' ]
+            Resource: "*"
+Outputs:
+  EKSConnectorAgentRoleArn:
+    Description: The agent role that EKS connector uses to communicate with AWS services.
+    Value: !GetAtt EKSConnectorAgentRole.Arn
