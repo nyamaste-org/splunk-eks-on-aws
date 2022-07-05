@@ -12,7 +12,7 @@ data "aws_availability_zones" "available" {}
 locals {
   cluster_name = "splunk-eks-${random_string.suffix.result}"
   cluster_version = "1.22"
-  tags = []
+  tags = {}
 }
 
 resource "random_string" "suffix" {
