@@ -1,4 +1,7 @@
 module "eks" {
+  # Using examples:
+  #   https://github.com/terraform-aws-modules/terraform-aws-eks/blob/v18.24.1/examples/self_managed_node_group/main.tf
+  #   https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest#usage
   source          = "terraform-aws-modules/eks/aws"
   version         = "~> 18.0"
 
@@ -72,36 +75,20 @@ module "eks" {
     }
   }
 
-  self_managed_node_groups = {
-    mixed = {
-      name = "mixed"
+  # EKS Managed Node Group(s)
+  eks_managed_node_group_defaults = {
+    disk_size      = 50
+    instance_types = ["t2.large", "t3.large"]
+  }
 
+  eks_managed_node_groups = {
+    green = {
       min_size     = 1
-      max_size     = 3
-      desired_size = 2
+      max_size     = 4
+      desired_size = 1
 
-      ami_id               = data.aws_ami.eks_default.id
-      bootstrap_extra_args = "--kubelet-extra-args '--node-labels=node.kubernetes.io/lifecycle=spot'"
-
-      use_mixed_instances_policy = true
-      mixed_instances_policy = {
-        instances_distribution = {
-          on_demand_base_capacity                  = 0
-          on_demand_percentage_above_base_capacity = 0
-          spot_allocation_strategy                 = "capacity-optimized"
-        }
-
-        override = [
-          {
-            instance_type     = "t3.medium"
-            weighted_capacity = "2"
-          },
-          {
-            instance_type     = "t2.medium"
-            weighted_capacity = "1"
-          },
-        ]
-      }
+      instance_types = ["t3.medium","t2.medium"]
+      capacity_type  = "SPOT"
     }
   }
 }
