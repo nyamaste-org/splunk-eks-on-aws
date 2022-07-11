@@ -22,8 +22,11 @@ module "eks" {
       resolve_conflicts = "OVERWRITE"
     }
   }
-  # disable control plane logging
+
+  # minimal logging settings
   cluster_enabled_log_types = []
+  create_cloudwatch_log_group = true
+  cloudwatch_log_group_retention_in_days = 3
 
   cluster_encryption_config = [{
     provider_key_arn = aws_kms_key.eks.arn
